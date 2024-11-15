@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Статистические распределения</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Демонстрация статистических распределений</h1>
+    <p>Выберите тип распределения и настройте параметры, чтобы увидеть график.</p>
+  </header>
+  
+  <main>
+    <div class="controls">
+      <label for="distribution">Выберите распределение:</label>
+      <select id="distribution">
+        <option value="normal">Нормальное</option>
+        <option value="exponential">Экспоненциальное</option>
+        <option value="poisson">Пуассона</option>
+        <option value="binomial">Биномиальное</option>
+      </select>
+      
+      <div id="parameters">
+        <!-- Параметры будут динамически добавляться сюда -->
+      </div>
+    </div>
+    
+    <canvas id="chart" width="800" height="400"></canvas>
+  </main>
+
+  <footer>
+    <p>© 2024 Статистические распределения</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
