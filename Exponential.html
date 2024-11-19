@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализ экспоненциального распределения</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Анализ экспоненциального распределения аварий</h1>
+        
+        <div class="control-panel">
+            <label for="lambda">Интенсивность аварий (λ): <span id="lambdaValue">0.2</span> аварий/неделю</label><br>
+            <input type="range" id="lambda" min="0.05" max="1" step="0.05" value="0.2">
+        </div>
+
+        <div id="plotDiv"></div>
+
+        <div id="tableDiv">
+            <h2>Значения в ключевых точках:</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Время (недели)</th>
+                        <th>Значение f(t)</th>
+                        <th>Интерпретация</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function generateData(lambda) {
+            const data = {
+                x: [],
+                y: [],
+                type: 'scatter',
+                name: 'f(t)'
+            };
+
+            for (let week = 0; week <= 20; week += 0.5) {
+                data.x.push(week);
+                data.y.push(lambda * Math.exp(-lambda * week));
+            }
+
+            return data;
+        }
+
+        function updatePlot(lambda) {
+            const data = generateData(lambda);
+            const layout = {
+                title: 'Плотность вероятности f(t) = λ * exp(-λt)',
+                xaxis: {
+                    title: 'Время (недели)'
+                },
+                yaxis: {
+                    title: 'f(t)'
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: 1,
+                        x1: 1,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'blue',
+                            dash: 'dash'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        x0: 4,
+                        x1: 4,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'green',
+                            dash: 'dash'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        x0: 8,
+                        x1: 8,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'red',
+                            dash: 'dash'
+                        }
+                    }
+                ]
+            };
+
+            Plotly.newPlot('plotDiv', [data], layout);
+            updateTable(lambda);
+        }
+
+        function updateTable(lambda) {
+            const keyPoints = [0, 1, 2, 4, 8];
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
+
+            keyPoints.forEach(week => {
+                const value = lambda * Math.exp(-lambda * week);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${week}</td>
+                    <td>${value.toFixed(4)}</td>
+                    <td>${week === 0 ? "Начальная вероятность" : 
+                        `Вероятность аварии через ${week} ${week === 1 ? 'неделю' : 'недель'}`}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize
+        const lambdaSlider = document.getElementById('lambda');
+        const lambdaValue = document.getElementById('lambdaValue');
+
+        lambdaSlider.addEventListener('input', (e) => {
+            const lambda = parseFloat(e.target.value);
+            lambdaValue.textContent = lambda.toFixed(3);
+            updatePlot(lambda);
+        });
+
+        // Initial plot
+        updatePlot(0.2);
+    </script>
+</body>
+</html>
