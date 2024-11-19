@@ -3,164 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Анализ экспоненциального распределения</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Распределения в техносферной безопасности</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
         }
-        .container {
-            background-color: white;
+        .header {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
         }
-        .control-panel {
-            margin: 20px 0;
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .nav-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 300px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        th {
-            background-color: #f4f4f4;
+        .nav-card h2 {
+            color: #2563eb;
+            margin: 0 0 10px 0;
+        }
+        .nav-card p {
+            margin: 0;
+            color: #666;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .feature-card h3 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Анализ экспоненциального распределения аварий</h1>
-        
-        <div class="control-panel">
-            <label for="lambda">Интенсивность аварий (λ): <span id="lambdaValue">0.2</span> аварий/неделю</label><br>
-            <input type="range" id="lambda" min="0.05" max="1" step="0.05" value="0.2">
+    <div class="header">
+        <h1>Распределения в техносферной безопасности</h1>
+        <p>Интерактивное изучение основных статистических распределений</p>
+    </div>
+
+    <div class="nav-container">
+        <a href="exponential.html" class="nav-card">
+            <h2>Экспоненциальное распределение</h2>
+            <p>Анализ времени между отказами и случайными событиями</p>
+        </a>
+        <a href="weibulla.html" class="nav-card">
+            <h2>Распределение Вейбулла</h2>
+            <p>Оценка надежности и прогнозирование отказов</p>
+        </a>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Экспоненциальное распределение</h3>
+            <ul>
+                <li>Моделирование случайных событий</li>
+                <li>Анализ времени безотказной работы</li>
+                <li>Прогнозирование аварий</li>
+                <li>Планирование технического обслуживания</li>
+            </ul>
         </div>
-
-        <div id="plotDiv"></div>
-
-        <div id="tableDiv">
-            <h2>Значения в ключевых точках:</h2>
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>Время (недели)</th>
-                        <th>Значение f(t)</th>
-                        <th>Интерпретация</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div class="feature-card">
+            <h3>Распределение Вейбулла</h3>
+            <ul>
+                <li>Анализ надежности оборудования</li>
+                <li>Оценка усталостной прочности</li>
+                <li>Прогнозирование отказов</li>
+                <li>Планирование замены оборудования</li>
+            </ul>
+        </div>
+        <div class="feature-card">
+            <h3>Интерактивные возможности</h3>
+            <ul>
+                <li>Динамическое изменение параметров</li>
+                <li>Визуализация распределений</li>
+                <li>Расчет вероятностей</li>
+                <li>Практические примеры</li>
+            </ul>
         </div>
     </div>
 
-    <script>
-        function generateData(lambda) {
-            const data = {
-                x: [],
-                y: [],
-                type: 'scatter',
-                name: 'f(t)'
-            };
+    <div class="footer">
+        <p>© 2024 Техносферная безопасность. Все права защищены.</p>
+        <p>Разработано для образовательных целей</p>
+    </div>
 
-            for (let week = 0; week <= 20; week += 0.5) {
-                data.x.push(week);
-                data.y.push(lambda * Math.exp(-lambda * week));
-            }
-
-            return data;
-        }
-
-        function updatePlot(lambda) {
-            const data = generateData(lambda);
-            const layout = {
-                title: 'Плотность вероятности f(t) = λ * exp(-λt)',
-                xaxis: {
-                    title: 'Время (недели)'
-                },
-                yaxis: {
-                    title: 'f(t)'
-                },
-                shapes: [
-                    {
-                        type: 'line',
-                        x0: 1,
-                        x1: 1,
-                        y0: 0,
-                        y1: 1,
-                        line: {
-                            color: 'blue',
-                            dash: 'dash'
-                        }
-                    },
-                    {
-                        type: 'line',
-                        x0: 4,
-                        x1: 4,
-                        y0: 0,
-                        y1: 1,
-                        line: {
-                            color: 'green',
-                            dash: 'dash'
-                        }
-                    },
-                    {
-                        type: 'line',
-                        x0: 8,
-                        x1: 8,
-                        y0: 0,
-                        y1: 1,
-                        line: {
-                            color: 'red',
-                            dash: 'dash'
-                        }
-                    }
-                ]
-            };
-
-            Plotly.newPlot('plotDiv', [data], layout);
-            updateTable(lambda);
-        }
-
-        function updateTable(lambda) {
-            const keyPoints = [0, 1, 2, 4, 8];
-            const tbody = document.querySelector('#dataTable tbody');
-            tbody.innerHTML = '';
-
-            keyPoints.forEach(week => {
-                const value = lambda * Math.exp(-lambda * week);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${week}</td>
-                    <td>${value.toFixed(4)}</td>
-                    <td>${week === 0 ? "Начальная вероятность" : 
-                        `Вероятность аварии через ${week} ${week === 1 ? 'неделю' : 'недель'}`}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Initialize
-        const lambdaSlider = document.getElementById('lambda');
-        const lambdaValue = document.getElementById('lambdaValue');
-
-        lambdaSlider.addEventListener('input', (e) => {
-            const lambda = parseFloat(e.target.value);
-            lambdaValue.textContent = lambda.toFixed(3);
-            updatePlot(lambda);
-        });
-
-        // Initial plot
-        updatePlot(0.2);
-    </script>
 </body>
 </html>
