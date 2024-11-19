@@ -4,126 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Анализ экспоненциального распределения</title>
-    <!-- Подключаем React -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <!-- Подключаем Babel для JSX -->
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <!-- Подключаем Recharts -->
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    <!-- Подключаем стили -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        .container {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
-        // Здесь будет наш React-компонент
-        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } = Recharts;
+    <div class="container">
+        <h1>Анализ экспоненциального распределения аварий</h1>
+        
+        <div class="control-panel">
+            <label for="lambda">Интенсивность аварий (λ): <span id="lambdaValue">0.2</span> аварий/неделю</label><br>
+            <input type="range" id="lambda" min="0.05" max="1" step="0.05" value="0.2">
+        </div>
 
-        const ExponentialDistribution = () => {
-            const [lambda, setLambda] = React.useState(0.2);
-            
-            const generateData = () => {
-                const data = [];
-                for (let week = 0; week <= 20; week += 0.5) {
-                    const pdf = lambda * Math.exp(-lambda * week);
-                    data.push({
-                        week: week,
-                        pdf: pdf
-                    });
-                }
-                return data;
+        <div id="plotDiv"></div>
+
+        <div id="tableDiv">
+            <h2>Значения в ключевых точках:</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Время (недели)</th>
+                        <th>Значение f(t)</th>
+                        <th>Интерпретация</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function generateData(lambda) {
+            const data = {
+                x: [],
+                y: [],
+                type: 'scatter',
+                name: 'f(t)'
             };
 
-            const calculateKeyPoints = () => {
-                const points = [0, 1, 2, 4, 8].map(week => ({
-                    week: week,
-                    value: lambda * Math.exp(-lambda * week)
-                }));
-                return points;
+            for (let week = 0; week <= 20; week += 0.5) {
+                data.x.push(week);
+                data.y.push(lambda * Math.exp(-lambda * week));
+            }
+
+            return data;
+        }
+
+        function updatePlot(lambda) {
+            const data = generateData(lambda);
+            const layout = {
+                title: 'Плотность вероятности f(t) = λ * exp(-λt)',
+                xaxis: {
+                    title: 'Время (недели)'
+                },
+                yaxis: {
+                    title: 'f(t)'
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: 1,
+                        x1: 1,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'blue',
+                            dash: 'dash'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        x0: 4,
+                        x1: 4,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'green',
+                            dash: 'dash'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        x0: 8,
+                        x1: 8,
+                        y0: 0,
+                        y1: 1,
+                        line: {
+                            color: 'red',
+                            dash: 'dash'
+                        }
+                    }
+                ]
             };
 
-            return (
-                <div className="container">
-                    <h1 className="text-3xl font-bold mb-6">Анализ экспоненциального распределения аварий</h1>
-                    
-                    <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                        <div className="mb-6">
-                            <label className="block mb-2">
-                                Интенсивность аварий (λ): {lambda.toFixed(3)} аварий/неделю
-                            </label>
-                            <input
-                                type="range"
-                                min={0.05}
-                                max={1}
-                                step={0.05}
-                                value={lambda}
-                                onChange={(e) => setLambda(Number(e.target.value))}
-                                className="w-full"
-                            />
-                        </div>
-                        
-                        <div className="mb-6">
-                            <LineChart data={generateData()} width={800} height={400}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis
-                                    dataKey="week"
-                                    label={{ value: 'Время (недели)', position: 'bottom' }}
-                                />
-                                <YAxis
-                                    label={{ value: 'f(t)', angle: -90, position: 'left' }}
-                                />
-                                <Tooltip formatter={(value) => value.toFixed(4)} />
-                                <Legend />
-                                <ReferenceLine x={1} stroke="blue" label="1 неделя" />
-                                <ReferenceLine x={4} stroke="green" label="4 недели" />
-                                <ReferenceLine x={8} stroke="red" label="8 недель" />
-                                <Line
-                                    type="monotone"
-                                    dataKey="pdf"
-                                    stroke="#8884d8"
-                                    name="f(t)"
-                                />
-                            </LineChart>
-                        </div>
+            Plotly.newPlot('plotDiv', [data], layout);
+            updateTable(lambda);
+        }
 
-                        <div>
-                            <h2 className="text-xl font-semibold mb-4">Ключевые точки:</h2>
-                            <table className="min-w-full">
-                                <thead>
-                                    <tr>
-                                        <th className="text-left p-2">Время (недели)</th>
-                                        <th className="text-left p-2">Значение f(t)</th>
-                                        <th className="text-left p-2">Интерпретация</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {calculateKeyPoints().map(point => (
-                                        <tr key={point.week}>
-                                            <td className="p-2">{point.week}</td>
-                                            <td className="p-2">{point.value.toFixed(4)}</td>
-                                            <td className="p-2">
-                                                {point.week === 0 ? "Начальная вероятность" :
-                                                    `Вероятность аварии через ${point.week} ${point.week === 1 ? 'неделю' : 'недель'}`}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+        function updateTable(lambda) {
+            const keyPoints = [0, 1, 2, 4, 8];
+            const tbody = document.querySelector('#dataTable tbody');
+            tbody.innerHTML = '';
 
-        ReactDOM.render(<ExponentialDistribution />, document.getElementById('root'));
+            keyPoints.forEach(week => {
+                const value = lambda * Math.exp(-lambda * week);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${week}</td>
+                    <td>${value.toFixed(4)}</td>
+                    <td>${week === 0 ? "Начальная вероятность" : 
+                        `Вероятность аварии через ${week} ${week === 1 ? 'неделю' : 'недель'}`}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize
+        const lambdaSlider = document.getElementById('lambda');
+        const lambdaValue = document.getElementById('lambdaValue');
+
+        lambdaSlider.addEventListener('input', (e) => {
+            const lambda = parseFloat(e.target.value);
+            lambdaValue.textContent = lambda.toFixed(3);
+            updatePlot(lambda);
+        });
+
+        // Initial plot
+        updatePlot(0.2);
     </script>
 </body>
 </html>
